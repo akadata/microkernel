@@ -3,7 +3,7 @@ Libraries". */
 
 #include <stdint.h>
 
-typedef int_least8_t Priority;
+typedef int8_t Priority;
 typedef struct node Node;
 typedef struct list List;
 

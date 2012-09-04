@@ -4,23 +4,26 @@ typedef void (Function)(void);
 typedef struct task Task;
 typedef struct message Message;
 
-/* kernel_init: Initialize kernel data structures and start
-the scheduler. This function may only be called once. */
-void kernel_init(void);
+/* kernel_init: Allocate and initialize kernel data
+structures. The function may only be called once. Zero is
+returned if the call succeeded. */
+uint8_t kernel_init(void);
+
+/* kernel_start: Start the scheduler. This function never
+returns. */
+void kernel_start(void);
 
 
-/* task_create: Allocate and initialize a task. The task entry
-point is given by entry. At least stacksize bytes will be
-allocated for program stack. A pointer to the newly created
-task is returned, or NULL if an error occured. */
-Task *task_create(Function *entry, size_t stacksize);
+/* task_create: Allocate and initialize a task. The task
+entry point is given by entry. At least stacksize bytes will
+be allocated for program stack. The task is added to the
+scheduler. A pointer to the newly created task is returned,
+or NULL if an error occured. */
+Task *task_create(Function *entry, size_t stacksize,
+  Priority priority);
 
 /* task_free: Free the resources used by a task. */
 void task_free(Task *task);
-
-/* task_start: Add a task to the scheduler. The return value
-is task on success or NULL on error. */
-Task *task_start(Task *task);
 
 /* task_self: Find self. A pointer to the running task is
 returned. */
