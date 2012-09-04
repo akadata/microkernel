@@ -3,7 +3,7 @@ Libraries". */
 
 #include <stdint.h>
 
-typedef int_least8_t Priority
+typedef int_least8_t Priority;
 typedef struct node Node;
 typedef struct list List;
 
@@ -32,20 +32,21 @@ struct list {
 };
 
 
-/* new_list: Prepare list for use. */
-void new_list(List *list);
+/* list_init: Prepare list for use. */
+void list_init(List *list);
 
-/* add_end: Add node to end of list. */
-void add_end(List *list, Node *node);
+/* list_add_end: Add node to end of list. */
+void list_add_end(List *list, Node *node);
 
-/* enqueue: Enqueue node in list. The node is inserted in the
-list before the first node with a priority lower than node. */
-void enqueue(List *list, Node *node);
+/* list_enqueue: Enqueue node in list. The node is inserted
+in the list before the first node with a priority lower than
+node. */
+void list_enqueue(List *list, Node *node);
 
-/* remove_node: Remove node from a list. The list is implicit
-as a node can be in at most one list at a time. */
-void remove(Node *node);
+/* list_remove_node: Remove node from a list. The list is
+implicit as a node can be in at most one list at a time. */
+void list_remove_node(Node *node);
 
-/* remove_head: Remove and return the head node of list. */
-Node *remove_head(List *list);
+/* list_remove_head: Remove and return the head node of list. */
+Node *list_remove_head(List *list);
 

@@ -4,7 +4,7 @@
 struct message {
     Node node;
     Task *source;
-    Message_type type;
+    void *data;
 };
 
 struct task {
