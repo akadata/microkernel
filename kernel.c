@@ -1,10 +1,7 @@
-#include "list.h"
+#include <stdlib.h>
 #include "kernel.h"
+#include "kernel_port.h"
 
-#define PRIORITY_IDLE (INT8_MIN)
-#define PRIORITY_LOW (INT8_MIN / 2)
-#define PRIORITY_NORMAL (0)
-#define PRIORITY_HIGH (INT8_MAX / 2)
 #define IDLE_TASK_STACKSIZE ((size_t) 64)
 
 struct message {
@@ -16,12 +13,13 @@ struct message {
 struct task {
     Node node;
     List messages;
+    Context *context;
+    char *name;
+    uint16_t npreemptions;
 };
 
 static Task *running_task;
 static List ready_tasks;
-/* It is not yet known if the waiting_list is needed. */
-static List waiting_tasks;
 
 /* The IDLE task is always guaranteed to be in the ready
 list. It's program code is in idle_function. */
@@ -32,19 +30,54 @@ static void idle_function(void)
 
 uint8_t kernel_init(void)
 {
-    if (NULL == task_create(idle_function, IDLE_TASK_STACKSIZE,
-      PRIORITY_IDLE)) {
+    Task *idle;
+
+    list_init(&ready_tasks);
+    idle = task_create("idle", IDLE_TASK_STACKSIZE,
+      idle_function, PRIORITY_IDLE);
+    if (NULL == idle) {
         return 1;
         /* 1 is a magic number. */
     }
-    list_init(&ready_tasks);
-    list_init(&waiting_tasks);
-    /* Initialize timer. */
     return 0;
 }
 
 void kernel_start(void)
 {
-    /* "Dequeue a task from ready_tasks and start it." */
+    /* Initialize timer. */
+    /* "Remove a task from ready_tasks and start it." */
+}
+
+Task *task_create(char *name, Priority priority, Function *entry,
+  size_t stacksize)
+{
+    Task *task;
+    Context *context;
+
+    interrupts_disable();
+    task = malloc(stacksize + sizeof (Task));
+    interrupts_enable();
+    if (NULL == task) {
+        return NULL;
+    }
+    context = context_create(entry);
+    if (NULL == context) {
+        return NULL;
+    }
+    task->context = context;
+
+    list_init(&(task->messages));
+    task->node.ln_pri = priority;
+    task->name = name;
+    task->npreemptions = 0;
+ 
+    interrupts_disable();
+    list_enqueue(&ready_tasks, (Node *) task);
+    interrupts_enable();
+    return task;
+}
+
+Task *task_self(void) {
+    return running_task;
 }
 

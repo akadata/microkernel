@@ -1,8 +1,15 @@
 #include <stddef.h>
+#include <stdint.h>
+#include "list.h"
 
 typedef void (Function)(void);
 typedef struct task Task;
 typedef struct message Message;
+
+#define PRIORITY_IDLE (INT8_MIN)
+#define PRIORITY_LOW (INT8_MIN / 2)
+#define PRIORITY_NORMAL (0)
+#define PRIORITY_HIGH (INT8_MAX / 2)
 
 /* kernel_init: Allocate and initialize kernel data
 structures. The function may only be called once. Zero is
@@ -17,10 +24,11 @@ void kernel_start(void);
 /* task_create: Allocate and initialize a task. The task
 entry point is given by entry. At least stacksize bytes will
 be allocated for program stack. The task is added to the
-scheduler. A pointer to the newly created task is returned,
-or NULL if an error occured. */
-Task *task_create(Function *entry, size_t stacksize,
-  Priority priority);
+scheduler. The function temporary disables multitasking. A
+pointer to the newly created task is returned, or NULL if an
+error occured. */
+Task *task_create(char *name, Priority priority, Function *entry,
+  size_t stacksize);
 
 /* task_free: Free the resources used by a task. */
 void task_free(Task *task);
@@ -36,18 +44,20 @@ Priority task_get_priority(Task *task);
 void task_set_priority(Task *task, Priority priority);
 
 
-/* message_create: Allocate and prepare a message for use. A
-pointer to the newly created task is returned, or NULL if an
-error occured. */
+/* message_create: Allocate and prepare a message. A pointer
+to the newly created task is returned, or NULL if an error
+occured. The function temporary disables multitasking. */
 Message *message_create(void);
 
 /* message_free: Free the resources used by message. */
 void message_free(Message *message);
 
-/* message_set_data: Associate data with message. The data is refered to, not copied. */
+/* message_set_data: Associate data with message. The data is
+refered to, not copied. */
 void message_set_data(Message *message, void *data);
 
-/* message_get_data: Get the data associated with a message. Data is not copied. */
+/* message_get_data: Get the data associated with a
+message. Data is not copied. */
 void *message_get_data(Message *message);
 
 /* message_put: Add a message to task's message queue. The
