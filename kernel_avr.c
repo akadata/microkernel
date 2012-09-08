@@ -46,3 +46,10 @@ void interrupts_disable(void)
     cli();
 }
 
+void port_reschedule(void)
+{
+    /* save context */
+    /* reschedule */
+    /* restore context */
+}
+

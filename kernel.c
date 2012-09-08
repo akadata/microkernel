@@ -48,6 +48,15 @@ void kernel_start(void)
     /* "Remove a task from ready_tasks and start it." */
 }
 
+/* kernel_reschedule: Ensure the highest priority task is
+running. */
+void kernel_reschedule(void)
+{
+    interrupts_disable();
+    port_reschedule();
+    interrupts_enable();
+}
+
 Task *task_create(char *name, Priority priority, Function *entry,
   size_t stacksize)
 {
@@ -74,6 +83,7 @@ Task *task_create(char *name, Priority priority, Function *entry,
     interrupts_disable();
     list_enqueue(&ready_tasks, (Node *) task);
     interrupts_enable();
+    kernel_reschedule();
     return task;
 }
 
