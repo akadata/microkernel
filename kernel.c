@@ -10,16 +10,11 @@ struct message {
     void *data;
 };
 
-struct task {
-    Node node;
-    List messages;
-    Context *context;
-    char *name;
-    uint16_t npreemptions;
-};
-
-static Task *running_task;
-static List ready_tasks;
+Task *running_task;
+List ready_tasks;
+/* The waiting list is not strictly needed by the multitasking
+logic. */
+static List waiting_tasks;
 
 /* The IDLE task is always guaranteed to be in the ready
 list. It's program code is in idle_function. */
@@ -33,6 +28,7 @@ uint8_t kernel_init(void)
     Task *idle;
 
     list_init(&ready_tasks);
+    list_init(&waiting_tasks);
     idle = task_create("idle", IDLE_TASK_STACKSIZE,
       idle_function, PRIORITY_IDLE);
     if (NULL == idle) {
@@ -49,7 +45,25 @@ void kernel_start(void)
 }
 
 /* kernel_reschedule: Ensure the highest priority task is
-running. */
+running.
+
+pre conditions:
+x Interrupts are enabled.
+x running_task belongs to exactly one of the queues ready_tasks
+  and waiting_tasks.
+x running_task may not be the task in ready_tasks with the
+  highest priority.
+x The running_task pointer references the task that issued
+  the call.
+
+post conditions:
+x Interrupts are enabled.
+x running_task belongs to ready_tasks.
+x running_task is the task with the highest priority.
+x The running_task pointer references the task that returns
+  from the call.
+*/
+
 void kernel_reschedule(void)
 {
     interrupts_disable();
@@ -71,6 +85,9 @@ Task *task_create(char *name, Priority priority, Function *entry,
     }
     context = context_create(entry);
     if (NULL == context) {
+        interrupts_disable();
+        free(task);
+        interrupts_enable();
         return NULL;
     }
     task->context = context;
