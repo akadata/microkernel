@@ -95,7 +95,6 @@ Task *task_create(char *name, Priority priority, Function *entry,
     list_init(&(task->messages));
     task->node.ln_pri = priority;
     task->name = name;
-    task->npreemptions = 0;
  
     interrupts_disable();
     list_enqueue(&ready_tasks, (Node *) task);

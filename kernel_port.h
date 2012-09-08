@@ -5,7 +5,6 @@ struct task {
     List messages;
     Context *context;
     char *name;
-    uint16_t npreemptions;
 };
 
 extern Task *running_task;

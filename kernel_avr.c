@@ -68,7 +68,6 @@
       the general purpose registers. */ \
       "pop r0 \n\t" \
       "pop r1 \n\t" \
-      "clr r1 \n\t" \
       "pop r2 \n\t" \
       "pop r3 \n\t" \
       "pop r4 \n\t" \
@@ -154,13 +153,31 @@ void port_reschedule(void)
     SAVE_CONTEXT();
     running_task->context = inter_sp;
 
-    /* reschedule */
+    running_task = (Task *) list_head(&ready_tasks);
 
     inter_sp = running_task->context;
 
     RESTORE_CONTEXT();
 
     /* The RETI instruction enables interrupts. */
+    __asm__ __volatile__ ("reti \n\t");
+}
+
+/* rr_timer: Periodic timer for round robin scheduling of
+tasks with equal priority. */
+ISR(TIMER0_COMP_vect, ISR_NAKED) {
+    SAVE_CONTEXT();
+    running_task->context = inter_sp;
+
+    /* Acknowledge the interrupt. */
+
+    /* Decide if a task change shall occur. */
+    /* FIXME: We don't know if the running_task is in the
+    ready list: The interrupt could fire just before a call
+    to kernel_reschedule(). */
+
+    inter_sp = running_task->context;
+    RESTORE_CONTEXT();
     __asm__ __volatile__ ("reti \n\t");
 }
 

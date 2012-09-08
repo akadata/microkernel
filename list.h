@@ -50,3 +50,6 @@ void list_remove_node(Node *node);
 /* list_remove_head: Remove and return the head node of list. */
 Node *list_remove_head(List *list);
 
+/* list_head: Return the head node. The list is not modified. */
+Node *list_head(List *list);
+
