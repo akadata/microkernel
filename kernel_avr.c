@@ -132,8 +132,13 @@ Context *context_create(Function *entry)
         return NULL;
     }
 
-    /* Memory for the context has been allocated. Initialize
-    it. */
+    /* Enable interrupts. */
+    c->rSREG = _BV(SREG_I);
+    /* The C compiler assumes that register r1 is zero.*/
+    c->r1 = 0;
+    c->pc_low = (unsigned int) entry >> 8;
+    c->pc_high = (unsigned int) entry;
+
     return c;
 }
 
