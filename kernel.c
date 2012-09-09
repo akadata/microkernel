@@ -44,33 +44,6 @@ void kernel_start(void)
     /* "Remove a task from ready_tasks and start it." */
 }
 
-/* kernel_reschedule: Ensure the highest priority task is
-running.
-
-pre conditions:
-x Interrupts are enabled.
-x running_task belongs to exactly one of the queues ready_tasks
-  and waiting_tasks.
-x running_task may not be the task in ready_tasks with the
-  highest priority.
-x The running_task pointer references the task that issued
-  the call.
-
-post conditions:
-x Interrupts are enabled.
-x running_task belongs to ready_tasks.
-x running_task is the task with the highest priority.
-x The running_task pointer references the task that returns
-  from the call.
-*/
-
-void kernel_reschedule(void)
-{
-    interrupts_disable();
-    port_reschedule();
-    interrupts_enable();
-}
-
 Task *task_create(char *name, Priority priority, Function *entry,
   size_t stacksize)
 {
@@ -98,8 +71,7 @@ Task *task_create(char *name, Priority priority, Function *entry,
  
     interrupts_disable();
     list_enqueue(&ready_tasks, (Node *) task);
-    interrupts_enable();
-    kernel_reschedule();
+    port_reschedule();
     return task;
 }
 

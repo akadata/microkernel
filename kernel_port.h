@@ -22,7 +22,7 @@ void interrupts_enable(void);
 /* interrupts_disable: Disable interrupts. */
 void interrupts_disable(void);
 
-/* port_reschedule: Save context, find new context, restore
-context. */
+/* port_reschedule: Ensure the highest priority task is
+running. */
 void port_reschedule(void);
 

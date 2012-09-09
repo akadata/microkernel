@@ -147,6 +147,25 @@ void interrupts_disable(void)
     cli();
 }
 
+/* port_reschedule: Ensure the highest priority task is running.
+
+pre conditions:
+x Interrupts are disabled.
+x running_task belongs to exactly one of the queues ready_tasks
+  and waiting_tasks.
+x running_task may not be the task in ready_tasks with the
+  highest priority.
+x The running_task pointer references the task that issued
+  the call.
+
+post conditions:
+x Interrupts are enabled.
+x running_task belongs to ready_tasks.
+x running_task is the task with the highest priority.
+x The running_task pointer references the task that returns
+  from the call.
+*/
+
 void port_reschedule(void) __attribute__ ((naked));
 void port_reschedule(void)
 {
@@ -171,10 +190,11 @@ ISR(TIMER0_COMP_vect, ISR_NAKED) {
 
     /* Acknowledge the interrupt. */
 
-    /* Decide if a task change shall occur. */
-    /* FIXME: We don't know if the running_task is in the
-    ready list: The interrupt could fire just before a call
-    to kernel_reschedule(). */
+    /* Decide if a task change shall occur. We know that
+    running_task is in the ready list. */
+    list_remove_node((Node *) running_task);
+    list_enqueue(&ready_tasks, (Node *) running_task);
+    running_task = (Task *) list_head(&ready_tasks);
 
     inter_sp = running_task->context;
     RESTORE_CONTEXT();
