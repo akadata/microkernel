@@ -177,13 +177,14 @@ void port_reschedule(void) __attribute__ ((naked));
 void port_reschedule(void)
 {
     SAVE_CONTEXT();
-    log_line("Context saved.");
-
     running_task->context = inter_sp;
-    running_task = (Task *) list_head(&ready_tasks);
-    inter_sp = running_task->context;
+    log_line(running_task->name);
+    log_string(" --> ");
 
-    log_line("Restoring context.");
+    running_task = (Task *) list_head(&ready_tasks);
+    log_string(running_task->name);
+
+    inter_sp = running_task->context;
     RESTORE_CONTEXT();
     /* The RETI instruction enables interrupts. */
     __asm__ __volatile__ ("reti \n\t");
