@@ -2,6 +2,7 @@
 #include <avr/interrupt.h>
 #include "kernel.h"
 #include "kernel_port.h"
+#include "log.h"
 
 #define SAVE_CONTEXT() \
 { \
@@ -133,11 +134,13 @@ Context *context_create(Function *entry, size_t stacksize)
 
     c = (Context *) (bos + stacksize);
     /* Enable interrupts. */
-    c->rSREG = _BV(SREG_I);
+    /* c->rSREG = _BV(SREG_I); */
     /* The C compiler assumes that register r1 is zero.*/
     c->r1 = 0;
+
     c->pc_low = (unsigned int) entry >> 8;
     c->pc_high = (unsigned int) entry;
+    log_line("OK");
     return c;
 }
 
@@ -174,14 +177,14 @@ void port_reschedule(void) __attribute__ ((naked));
 void port_reschedule(void)
 {
     SAVE_CONTEXT();
+    log_line("Context saved.");
+
     running_task->context = inter_sp;
-
     running_task = (Task *) list_head(&ready_tasks);
-
     inter_sp = running_task->context;
 
+    log_line("Restoring context.");
     RESTORE_CONTEXT();
-
     /* The RETI instruction enables interrupts. */
     __asm__ __volatile__ ("reti \n\t");
 }

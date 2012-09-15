@@ -56,6 +56,7 @@ Task *kernel_start(void)
  
     list_enqueue(&ready_tasks, (Node *) init);
     running_task = init;
+    log_line("Added init task.");
 
     /* Initialize timer. */
     /* "Remove a task from ready_tasks and start it." */

@@ -7,7 +7,8 @@
 void uart_init(void)
 {
     #undef BAUD  // avoid compiler warning
-    #define BAUD 31250
+    /* #define BAUD 31250 */
+    #define BAUD 2400
     #include <util/setbaud.h>
     UBRRH = UBRRH_VALUE;
     UBRRL = UBRRL_VALUE;
