@@ -125,9 +125,7 @@ Context *context_create(Function *entry)
 {
     Context *c;
 
-    interrupts_disable();
-    c = malloc(sizeof (Context));
-    interrupts_enable();
+    c = calloc(1, sizeof (Context));
     if (NULL == c) {
         return NULL;
     }

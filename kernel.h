@@ -24,9 +24,9 @@ void kernel_start(void);
 /* task_create: Allocate and initialize a task. The task
 entry point is given by entry. At least stacksize bytes will
 be allocated for program stack. The task is added to the
-scheduler. The function temporary disables multitasking. A
-pointer to the newly created task is returned, or NULL if an
-error occured. */
+scheduler. A pointer to the newly created task is returned,
+or NULL if an error occured. Creating tasks is allowed only
+between kernel_init() and kernel_start(). */
 Task *task_create(char *name, Priority priority, Function *entry,
   size_t stacksize);
 

@@ -29,8 +29,9 @@ uint8_t kernel_init(void)
 
     list_init(&ready_tasks);
     list_init(&waiting_tasks);
-    idle = task_create("idle", IDLE_TASK_STACKSIZE,
-      idle_function, PRIORITY_IDLE);
+
+    idle = task_create("idle", PRIORITY_IDLE,
+      idle_function, IDLE_TASK_STACKSIZE);
     if (NULL == idle) {
         return 1;
         /* 1 is a magic number. */
@@ -42,6 +43,7 @@ void kernel_start(void)
 {
     /* Initialize timer. */
     /* "Remove a task from ready_tasks and start it." */
+    port_reschedule();
 }
 
 Task *task_create(char *name, Priority priority, Function *entry,
@@ -50,17 +52,13 @@ Task *task_create(char *name, Priority priority, Function *entry,
     Task *task;
     Context *context;
 
-    interrupts_disable();
-    task = malloc(stacksize + sizeof (Task));
-    interrupts_enable();
+    task = calloc(1, stacksize + sizeof (Task));
     if (NULL == task) {
         return NULL;
     }
     context = context_create(entry);
     if (NULL == context) {
-        interrupts_disable();
         free(task);
-        interrupts_enable();
         return NULL;
     }
     task->context = context;
@@ -69,9 +67,7 @@ Task *task_create(char *name, Priority priority, Function *entry,
     task->node.ln_pri = priority;
     task->name = name;
  
-    interrupts_disable();
     list_enqueue(&ready_tasks, (Node *) task);
-    port_reschedule();
     return task;
 }
 

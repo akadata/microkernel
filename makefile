@@ -1,5 +1,5 @@
 TARGET = main.out
-CFILES = list.c kernel_avr.c kernel.c main.c
+CFILES = list.c kernel.c kernel_avr.c main.c
 MCU = atmega16
 OPTLEVEL=0
 CFLAGS = -mmcu=$(MCU) -std=c99 -g -O$(OPTLEVEL) -Wall -Wextra -pedantic
@@ -18,10 +18,10 @@ size: $(TARGET) $(OBJECTS)
 	avr-size $(TARGET) $(OBJECTS)
 
 program: $(TARGET)
-	sudo avarice -g --erase --program --file $(TARGET)
+	avarice -g --erase --program --file $(TARGET)
 
 gdbserver: $(TARGET)
-	sudo avarice -g --erase --program --file $(TARGET) localhost:1212
+	avarice -g --erase --program --file $(TARGET) -B 1000000 localhost:1212
 
 gdb: $(TARGET)
 	avr-gdb -x gdbinit
