@@ -1,14 +1,14 @@
 #include <inttypes.h>
 #include <avr/io.h>
-#include "log.h"
+#include "kernel_log.h"
 
 #define F_CPU 8000000
 
-void uart_init(void)
+void port_log_init(void)
 {
     #undef BAUD  // avoid compiler warning
-    /* #define BAUD 31250 */
-    #define BAUD 2400
+    #define BAUD 31250
+    /* #define BAUD 2400 */
     #include <util/setbaud.h>
     UBRRH = UBRRH_VALUE;
     UBRRL = UBRRL_VALUE;
@@ -19,14 +19,14 @@ void uart_init(void)
     #endif
     /* Enable receiver and transmitter. */
     UCSRB=(1<<RXEN)|(1<<TXEN);
-    uart_putchar('\n');
+    port_log_putchar('\n');
     log_line("OK");
 }
 
-void uart_putchar(char c)
+void port_log_putchar(char c)
 {
     if (c == '\n') {
-        uart_putchar('\r');
+        port_log_putchar('\r');
     }
     loop_until_bit_is_set(UCSRA, UDRE);
     UDR = c;
@@ -41,47 +41,47 @@ static char num_to_hex(uint8_t n)
     }
 }
 
-void uart_puthex(uint8_t v)
+void port_log_puthex(uint8_t v)
 {
-    uart_putchar(num_to_hex(v >> 4));
-    uart_putchar(num_to_hex(v & 0x0f));
+    port_log_putchar(num_to_hex(v >> 4));
+    port_log_putchar(num_to_hex(v & 0x0f));
 }
 
-void uart_putstring(const char *string)
+void port_log_putstring(const char *string)
 {
   char c;
 
   while ((c = *string++)) {
-    uart_putchar(c);
+    port_log_putchar(c);
   }
 }
 
-char uart_getchar(void)
+char port_log_getchar(void)
 {
     loop_until_bit_is_set(UCSRA, RXC);
 	return UDR;
 }
 
 /*
-static void uart_puttest(void)
+static void port_log_puttest(void)
 {
     uint8_t i;
     uint16_t t;
 
-    uart_init();
-    uart_putstring("\nUART initialized.\n");
+    port_log_init();
+    port_log_putstring("\nUART initialized.\n");
     i = 0;
     while (1) {
         while(t++);
-        uart_puthex(i++);
-        uart_putchar(' ');
+        port_log_puthex(i++);
+        port_log_putchar(' ');
         if (0 == (i % 16)) {
-            uart_putchar('\n');
+            port_log_putchar('\n');
         }
     }
 }
 */
 
 /*
-int main(void) { uart_puttest();}
+int main(void) { port_log_puttest();}
 */

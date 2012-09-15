@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include "kernel.h"
 #include "kernel_port.h"
-#include "log.h"
+#include "kernel_log.h"
 
 #define IDLE_TASK_STACKSIZE ((size_t) 64)
 

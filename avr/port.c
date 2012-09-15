@@ -2,7 +2,7 @@
 #include <avr/interrupt.h>
 #include "kernel.h"
 #include "kernel_port.h"
-#include "log.h"
+#include "kernel_log.h"
 
 #define SAVE_CONTEXT() \
 { \

@@ -1,6 +1,6 @@
 /* main.c: Example program for kernel. */
 #include "kernel.h"
-#include "log.h"
+#include "kernel_log.h"
 #include "kernel_port.h"
 
 void swisch(void)
@@ -15,16 +15,16 @@ void count(uint16_t n) {
     uint8_t i;
     volatile uint16_t t;
 
-    log_line("I am ");
-    log_string(task_self()->name);
+    log_line(task_self()->name);
+    log_string(" entered counter function.");
     i = 0;
     while (1) {
         if (0 == (i % n)) {
             swisch();
-            log_line("");
+            task_line("");
         }
-        uart_puthex(i++);
-        uart_putchar(' ');
+        port_log_puthex(i++);
+        port_log_putchar(' ');
         while(t++) {
             t--; t++; t--; t++; t--; t++;
         }
@@ -33,7 +33,7 @@ void count(uint16_t n) {
 
 void hello(void)
 {
-    count(3);
+    count(7);
 }
 
 int main(void)
@@ -42,7 +42,7 @@ int main(void)
     task_create("hello", PRIORITY_NORMAL, hello, 64);
     kernel_start();
     while(1) {
-        count(5);
+        count(11);
     }
     return 0;
 }
