@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include "kernel.h"
 #include "kernel_port.h"
+#include "log.h"
 
 #define IDLE_TASK_STACKSIZE ((size_t) 64)
 
@@ -27,6 +28,7 @@ uint8_t kernel_init(void)
 {
     Task *idle;
 
+    log_init();
     list_init(&ready_tasks);
     list_init(&waiting_tasks);
 
@@ -36,6 +38,7 @@ uint8_t kernel_init(void)
         return 1;
         /* 1 is a magic number. */
     }
+    log_line("OK");
     return 0;
 }
 
@@ -56,7 +59,7 @@ Task *kernel_start(void)
 
     /* Initialize timer. */
     /* "Remove a task from ready_tasks and start it." */
-    /* port_reschedule(); */
+    port_reschedule();
     return init;
 }
 
@@ -82,6 +85,7 @@ Task *task_create(char *name, Priority priority, Function *entry,
     task->name = name;
  
     list_enqueue(&ready_tasks, (Node *) task);
+    log_line(name);
     return task;
 }
 

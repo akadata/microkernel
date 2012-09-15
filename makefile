@@ -1,8 +1,9 @@
 TARGET = main.out
-CFILES = list.c kernel.c kernel_avr.c main.c
+CFILES = list.c kernel.c kernel_avr.c avr/log.c main.c
 MCU = atmega16
 OPTLEVEL=0
-CFLAGS = -mmcu=$(MCU) -std=c99 -g -O$(OPTLEVEL) -Wall -Wextra -pedantic
+CFLAGS = -mmcu=$(MCU) -std=c99 -g -O$(OPTLEVEL) -Wall -Wextra \
+         -pedantic -Iavr -DDEBUG
 LDFLAGS = -mmcu=$(MCU) -Wl,-Map,$(TARGET).map
 #VPATH = ..
 CC = avr-gcc
@@ -15,7 +16,8 @@ $(TARGET): $(OBJECTS)
 $(OBJECTS): $(DEPS)
 
 size: $(TARGET) $(OBJECTS)
-	avr-size $(TARGET) $(OBJECTS)
+	avr-size --totals $(OBJECTS)
+	avr-size $(TARGET)
 
 program: $(TARGET)
 	avarice -g --erase --program --file $(TARGET)
