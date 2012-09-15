@@ -28,6 +28,13 @@ void port_log_putstring(const char *string);
         } \
     } while (0)
 
+#define log_hex(n) \
+    do { \
+        if (DEBUG_LOG) { \
+            port_log_puthex(n); \
+        } \
+    } while (0)
+
 #define log_string(string) \
     do { \
         if (DEBUG_LOG) { \

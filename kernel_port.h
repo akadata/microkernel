@@ -2,9 +2,11 @@ typedef struct context Context;
 
 struct task {
     Node node;
-    List messages;
     Context *context;
     char *name;
+    List messages;
+    Signal sig_mask;
+    Signal sig_rec;
 };
 
 extern Task *running_task;

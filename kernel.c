@@ -94,3 +94,54 @@ Task *task_self(void) {
     return running_task;
 }
 
+void task_signal(Task *task, Signal signal) {
+    /* Set destionation signal. Unblock the task if the target
+    signal is in mask. */
+    interrupts_disable();
+    task_line("");
+    log_hex(signal);
+    log_string(" --> ");
+    log_string(task->name);
+    log_string(" {mask=");
+    log_hex(task->sig_mask);
+    log_string(", rec=");
+    log_hex(task->sig_rec);
+    log_string("} ==> rec=");
+
+    task->sig_rec |= signal;
+    log_hex(task->sig_rec);
+    if (task->sig_mask & signal) {
+        task_line("Unblock destination");
+        list_remove_node((Node *) task); 
+        list_enqueue(&ready_tasks, (Node *) task);
+        if (running_task->node.ln_pri < task->node.ln_pri) {
+            log_line("Force reschedule");
+            port_reschedule();
+        } else {
+            /* An unneeded context switch is optimized away. */
+            interrupts_enable();
+        }
+    } else {
+        interrupts_enable();
+    }
+}
+
+/*
+sig_wait := mask
+if 0 != (sig_wait & sig_rec)
+  ret = sig_rec
+  sig_rec = sig_wait & ~sig_rec
+  return sig_rec
+else
+  block
+  ret = sig_rec
+  clear signal bits that satisfied wait conditions. ??
+  sig_rec = sig_wait & ~sig_rec
+  return ret
+*/
+/* FIXME: Motivate why satisfied signal bits are cleared. */
+Signal task_wait(Signal mask) {
+    
+    return 0;
+}
+

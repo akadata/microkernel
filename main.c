@@ -33,17 +33,20 @@ void count(uint16_t n) {
 
 void hello(void)
 {
+    task_self()->sig_mask = 1;
     count(7);
 }
+
+Task *my;
 
 int main(void)
 {
     kernel_init();
-    task_create("hello", PRIORITY_NORMAL, hello, 64);
+    my = task_create("hello", PRIORITY_NORMAL, hello, 64);
     kernel_start();
-    while(1) {
+    swisch();
+    task_signal(my, 1);
         count(11);
-    }
     return 0;
 }
 

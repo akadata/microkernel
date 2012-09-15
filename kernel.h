@@ -2,9 +2,10 @@
 #include <stdint.h>
 #include "list.h"
 
-typedef void (Function)(void);
+typedef uint8_t Signal;
 typedef struct task Task;
 typedef struct message Message;
+typedef void (Function)(void);
 
 #define PRIORITY_IDLE (INT8_MIN)
 #define PRIORITY_LOW (INT8_MIN / 2)
@@ -43,6 +44,11 @@ Priority task_get_priority(Task *task);
 /* task_set_priority: Set scheduling priority of task. */
 void task_set_priority(Task *task, Priority priority);
 
+/* task_signal: Send signal to task. */
+void task_signal(Task *task, Signal signal);
+
+/* task_wait: Wait for signals. */
+Signal task_wait(Signal mask);
 
 /* message_create: Allocate and prepare a message. A pointer
 to the newly created task is returned, or NULL if an error
