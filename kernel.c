@@ -39,11 +39,25 @@ uint8_t kernel_init(void)
     return 0;
 }
 
-void kernel_start(void)
+Task *kernel_start(void)
 {
+    Task *init;
+
+    init = calloc(1, sizeof (Task));
+    if (NULL == init) {
+        return NULL;
+    }
+    list_init(&(init->messages));
+    init->node.ln_pri = PRIORITY_NORMAL;
+    init->name = "init";
+ 
+    list_enqueue(&ready_tasks, (Node *) init);
+    running_task = init;
+
     /* Initialize timer. */
     /* "Remove a task from ready_tasks and start it." */
-    port_reschedule();
+    /* port_reschedule(); */
+    return init;
 }
 
 Task *task_create(char *name, Priority priority, Function *entry,
@@ -52,11 +66,11 @@ Task *task_create(char *name, Priority priority, Function *entry,
     Task *task;
     Context *context;
 
-    task = calloc(1, stacksize + sizeof (Task));
+    task = calloc(1, sizeof (Task));
     if (NULL == task) {
         return NULL;
     }
-    context = context_create(entry);
+    context = context_create(entry, stacksize);
     if (NULL == context) {
         free(task);
         return NULL;

@@ -121,22 +121,23 @@ struct context {
 
 static Context *inter_sp;
 
-Context *context_create(Function *entry)
+Context *context_create(Function *entry, size_t stacksize)
 {
     Context *c;
+    uint8_t *bos;
 
-    c = calloc(1, sizeof (Context));
-    if (NULL == c) {
+    bos = calloc(1, stacksize + sizeof (Context));
+    if (NULL == bos) {
         return NULL;
     }
 
+    c = (Context *) (bos + stacksize);
     /* Enable interrupts. */
     c->rSREG = _BV(SREG_I);
     /* The C compiler assumes that register r1 is zero.*/
     c->r1 = 0;
     c->pc_low = (unsigned int) entry >> 8;
     c->pc_high = (unsigned int) entry;
-
     return c;
 }
 

@@ -16,9 +16,9 @@ structures. The function may only be called once. Zero is
 returned if the call succeeded. */
 uint8_t kernel_init(void);
 
-/* kernel_start: Start the scheduler. This function never
-returns. */
-void kernel_start(void);
+/* kernel_start: Start the scheduler. This function returns
+the init task (itself) on success, or NULL on error. */
+Task *kernel_start(void);
 
 
 /* task_create: Allocate and initialize a task. The task

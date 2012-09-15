@@ -10,11 +10,10 @@ struct task {
 extern Task *running_task;
 extern List ready_tasks;
 
-/* context_create: Allocate and initialize a task context. The
-task entry point is entry. The function temporary disables
-multitasking. A pointer to the created context is returned,
-or NULL if an error occured. */
-Context *context_create(Function *entry);
+/* context_create: Allocate stack and initialize task
+context. The code entry point is entry.  A pointer to the
+created context is returned, or NULL if an error occured. */
+Context *context_create(Function *entry, size_t stacksize);
 
 /* interrupts_enable: Enable interrupts. */
 void interrupts_enable(void);
