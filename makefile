@@ -1,10 +1,10 @@
 TARGET = main.out
 CFILES = list.c kernel.c kernel_signal.c kernel_message.c \
-		 avr/port.c avr/log_uart.c main.c
+		 avr/port.c avr/log_uart.c main.c avr/uart_driver.c
 MCU = atmega16
 OPTLEVEL=s
 CFLAGS = -mmcu=$(MCU) -std=c99 -g -O$(OPTLEVEL) -Wall -Wextra \
-         -pedantic -I. -Iavr -DDEBUG
+         -pedantic -I. -Iavr
 LDFLAGS = -mmcu=$(MCU) -Wl,-Map,$(TARGET).map
 #VPATH = ..
 CC = avr-gcc

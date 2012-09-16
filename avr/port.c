@@ -118,3 +118,9 @@ ISR(TIMER0_COMP_vect, ISR_NAKED) {
     __asm__ __volatile__ ("reti \n\t");
 }
 
+void abort(void)
+{
+    log_line("ASSERT FAILURE");
+    exit(1);
+}
+

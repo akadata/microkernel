@@ -114,3 +114,4 @@ struct context {
     unsigned char pc_low, pc_high;
 };
 
+void abort(void);

@@ -1,8 +1,8 @@
 #include <inttypes.h>
 #include <avr/io.h>
-#include "kernel_log.h"
+#include "uart_driver.h"
 
-void port_log_init(void)
+void uart_init(void)
 {
     #define F_CPU 8000000
     #define BAUD 31250
@@ -16,17 +16,21 @@ void port_log_init(void)
     #endif
     /* Enable receiver and transmitter. */
     UCSRB = _BV(RXEN) | _BV(TXEN);
-    port_log_putchar('\n');
-    log_line("OK");
+    uart_putstring("\nUART driver initialized\n");
 }
 
-void port_log_putchar(char c)
+void uart_putchar(char c)
 {
     if ('\n' == c) {
-        port_log_putchar('\r');
+        uart_putchar('\r');
     }
+    uart_put(c);
+}
+
+void uart_put(uint8_t v)
+{
     loop_until_bit_is_set(UCSRA, UDRE);
-    UDR = c;
+    UDR = v;
 }
 
 static char num_to_hex(uint8_t n)
@@ -38,22 +42,22 @@ static char num_to_hex(uint8_t n)
     }
 }
 
-void port_log_puthex(uint8_t v)
+void uart_puthex(uint8_t v)
 {
-    port_log_putchar(num_to_hex(v >> 4));
-    port_log_putchar(num_to_hex(v & 0x0f));
+    uart_putchar(num_to_hex(v >> 4));
+    uart_putchar(num_to_hex(v & 0x0f));
 }
 
-void port_log_putstring(const char *string)
+void uart_putstring(const char *string)
 {
-  char c;
+    char c;
 
-  while ((c = *string++)) {
-    port_log_putchar(c);
-  }
+    while ((c = *string++)) {
+        uart_putchar(c);
+    }
 }
 
-char port_log_getchar(void)
+uint8_t uart_get(void)
 {
     loop_until_bit_is_set(UCSRA, RXC);
 	return UDR;
