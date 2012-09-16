@@ -2,7 +2,8 @@
 #include "kernel_port.h"
 #include "kernel_log.h"
 
-void task_signal(Task *task, Signal signal) {
+void task_signal(Task *task, Signal signal)
+{
     /* Set destionation signal. Unblock the task if the target
     signal is in mask. */
     interrupts_disable();
@@ -39,7 +40,8 @@ void task_signal(Task *task, Signal signal) {
 
 /* Why are satisfied signal bits cleared? Because there is no
 need to clear it manually afterwards then. */
-Signal task_wait(Signal mask) {
+Signal task_wait(Signal mask)
+{
     Signal ret;
 
     interrupts_disable();
@@ -63,6 +65,9 @@ Signal task_wait(Signal mask) {
         task_line("...unblocked ");
         log_string("{mask=");
         log_hex(mask);
+        log_string("(");
+        log_hex(running_task->sig_mask);
+        log_string(")");
         log_string(", rec=");
         log_hex(running_task->sig_rec);
         log_string("} ==> ");

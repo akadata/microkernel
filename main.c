@@ -25,7 +25,7 @@ void count(uint16_t n) {
 }
 
 Task *t1, *t2;
-#define MESS 3
+#define MESS 2
 void f1(void)
 {
     Message m[MESS];
@@ -71,7 +71,7 @@ void abort(void)
 int main(void)
 {
     kernel_init();
-    t1 = task_create("Task1", PRIORITY_NORMAL+2, f1, 64);
+    t1 = task_create("Task1", PRIORITY_NORMAL-2, f1, 64);
     assert(t1);
     t2 = task_create("Task2", PRIORITY_NORMAL+1, f2, 64);
     assert(t2);
