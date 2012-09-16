@@ -59,7 +59,7 @@ Task *kernel_start(void)
     log_line("Added init task.");
 
     /* Initialize timer. */
-    /* "Remove a task from ready_tasks and start it." */
+    port_timer_init();
     port_reschedule();
     return init;
 }
@@ -138,20 +138,22 @@ Signal task_wait(Signal mask) {
     log_hex(running_task->sig_rec);
     log_string("} ==> ");
     if (mask & running_task->sig_rec) {
-        log_string("early return");
-
         ret = running_task->sig_rec & mask;
         running_task->sig_rec &= ~mask;
         running_task->sig_mask = 0;
 
+        log_string("{rec=");
+        log_hex(running_task->sig_rec);
+        log_string("}, early return ");
+        log_hex(ret);
+
         interrupts_enable();
         return ret;
     } else {
-        log_string("block");
         running_task->sig_mask = mask;
         list_remove_node((Node *) running_task);
         list_enqueue(&waiting_tasks, (Node *) running_task);
-        task_line("--> waiting list");
+        log_string("blocked");
         port_reschedule();
         /* Interrupts may occur here. */
         interrupts_disable();
@@ -174,4 +176,3 @@ Signal task_wait(Signal mask) {
         return ret;
     }
 }
-

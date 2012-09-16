@@ -23,6 +23,9 @@ void interrupts_enable(void);
 /* interrupts_disable: Disable interrupts. */
 void interrupts_disable(void);
 
+/* Set up round robin timer. */
+void port_timer_init(void);
+
 /* port_reschedule: Ensure the highest priority task is
 running. */
 void port_reschedule(void);

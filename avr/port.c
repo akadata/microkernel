@@ -173,39 +173,64 @@ x The running_task pointer references the task that returns
   from the call.
 */
 
+static void reschedule(void)
+{
+    running_task->context = inter_sp;
+    running_task = (Task *) list_head(&ready_tasks);
+    inter_sp = running_task->context;
+}
+
 void port_reschedule(void) __attribute__ ((naked));
 void port_reschedule(void)
 {
     SAVE_CONTEXT();
-    running_task->context = inter_sp;
     log_line(running_task->name);
     log_string(" --> ");
-
-    running_task = (Task *) list_head(&ready_tasks);
+    reschedule();
     log_string(running_task->name);
-
-    inter_sp = running_task->context;
     RESTORE_CONTEXT();
     /* The RETI instruction enables interrupts. */
     __asm__ __volatile__ ("reti \n\t");
 }
 
+#define RR_TIMEOUT_MS ((uint16_t) 10)
+static volatile uint16_t timer_tick = RR_TIMEOUT_MS;
 /* rr_timer: Periodic timer for round robin scheduling of
 tasks with equal priority. */
 ISR(TIMER0_COMP_vect, ISR_NAKED) {
     SAVE_CONTEXT();
-    running_task->context = inter_sp;
-
     /* Acknowledge the interrupt. */
 
     /* Decide if a task change shall occur. We know that
     running_task is in the ready list. */
-    list_remove_node((Node *) running_task);
-    list_enqueue(&ready_tasks, (Node *) running_task);
-    running_task = (Task *) list_head(&ready_tasks);
-
-    inter_sp = running_task->context;
+    if (!(timer_tick--)) {
+        list_remove_node((Node *) running_task);
+        list_enqueue(&ready_tasks, (Node *) running_task);
+        reschedule();
+        timer_tick = RR_TIMEOUT_MS;
+    }
     RESTORE_CONTEXT();
     __asm__ __volatile__ ("reti \n\t");
+}
+
+/* Output Compare Register. T = N(1+OCR0) / f */
+#define TIMER0_OUTPUT_COMPARE_REGISTER_MS 124
+/* Timer/Counter Control Register: prescaler f/64 */
+#define TIMER0_CLOCK_SOURCE_MS (_BV(CS01) + _BV(CS00))
+
+void port_timer_init(void)
+{
+    /* Clear Time on Compare (CTC) mode */
+    TCCR0 |= _BV(WGM01) + TIMER0_CLOCK_SOURCE_MS;
+    /* Output Compare Register.*/
+    OCR0 = TIMER0_OUTPUT_COMPARE_REGISTER_MS;
+    /* Timer/Counter 0: TCNT0 increases until a compare match
+    occurs between TCNT0 and OCR0, and then TCNT0 is cleared. */
+    TCNT0 = 0;
+    /* TIFR */
+    TIFR |= (1 << OCF0);
+    /* Timer/Counter Interrupt Mask Register */
+    /* Timer/Counter0 Output Compare Match Interrupt Enable */
+    TIMSK |= (1 << OCIE0);
 }
 

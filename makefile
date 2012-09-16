@@ -1,7 +1,7 @@
 TARGET = main.out
 CFILES = list.c kernel.c avr/port.c avr/log_uart.c main.c
 MCU = atmega16
-OPTLEVEL=0
+OPTLEVEL=s
 CFLAGS = -mmcu=$(MCU) -std=c99 -g -O$(OPTLEVEL) -Wall -Wextra \
          -pedantic -I. -Iavr -DDEBUG
 LDFLAGS = -mmcu=$(MCU) -Wl,-Map,$(TARGET).map
