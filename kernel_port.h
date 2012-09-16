@@ -11,6 +11,7 @@ struct task {
 
 extern Task *running_task;
 extern List ready_tasks;
+extern List waiting_tasks;
 
 /* context_create: Allocate stack and initialize task
 context. The code entry point is entry.  A pointer to the

@@ -133,14 +133,11 @@ Context *context_create(Function *entry, size_t stacksize)
     }
 
     c = (Context *) (bos + stacksize);
-    /* Enable interrupts. */
-    /* c->rSREG = _BV(SREG_I); */
     /* The C compiler assumes that register r1 is zero.*/
     c->r1 = 0;
 
     c->pc_low = (unsigned int) entry >> 8;
     c->pc_high = (unsigned int) entry;
-    log_line("OK");
     return c;
 }
 
@@ -195,8 +192,7 @@ void port_reschedule(void)
 
 #define RR_TIMEOUT_MS ((uint16_t) 10)
 static volatile uint16_t timer_tick = RR_TIMEOUT_MS;
-/* rr_timer: Periodic timer for round robin scheduling of
-tasks with equal priority. */
+
 ISR(TIMER0_COMP_vect, ISR_NAKED) {
     SAVE_CONTEXT();
     /* Acknowledge the interrupt. */

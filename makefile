@@ -1,5 +1,6 @@
 TARGET = main.out
-CFILES = list.c kernel.c avr/port.c avr/log_uart.c main.c
+CFILES = list.c kernel.c kernel_signal.c avr/port.c \
+         avr/log_uart.c main.c
 MCU = atmega16
 OPTLEVEL=s
 CFLAGS = -mmcu=$(MCU) -std=c99 -g -O$(OPTLEVEL) -Wall -Wextra \
