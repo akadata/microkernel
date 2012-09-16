@@ -52,7 +52,7 @@ last wait() matching mask are returned. */
 Signal task_wait(Signal mask);
 
 /* message_create: Allocate and prepare a message. A pointer
-to the newly created task is returned, or NULL if an error
+to the newly created message is returned, or NULL if an error
 occured. The function temporary disables multitasking. */
 Message *message_create(void);
 
@@ -74,17 +74,26 @@ replied to by the destination. The call never blocks but may
 cause a task switch. */
 void message_put(Task *destination, Message *message);
 
-/* message_put_isr: Send message from an Interrupt Service
-Routine. See message_put(). */
-void message_put_isr(Task *destination, Message *message);
+/* message_wait: Wait for messages. The call blocks if
+the task's message queue is empty. At return, messages are
+fetched by issuing message_get() until no more messages are
+available. */
+void message_wait(void);
 
-/* message_get: Deliver the next message. The call blocks if
-the task's message queue is empty. Messages are delivered in
-FIFO order. The receiving task will get temporary access to
-the message and may read and modify it. After the message is
-replied to with message_reply(), access is forbidden. */
+/* message_get: Deliver the next message. This call never
+blocks. Messages are delivered in FIFO order. A message is
+returned, or NULL if the message queue is empty. The receiving
+task will get temporary access to the message and may read and
+modify it. After the message is replied to with message_reply(),
+access is forbidden. */
 Message *message_get(void);
 
 /* message_reply: Reply on a message. */
 void message_reply(Message *message);
+
+struct message {
+    Node node;
+    Task *source;
+    void *data;
+};
 

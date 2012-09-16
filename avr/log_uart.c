@@ -6,7 +6,7 @@
 
 void port_log_init(void)
 {
-    #undef BAUD  // avoid compiler warning
+    #undef BAUD
     #define BAUD 31250
     /* #define BAUD 2400 */
     #include <util/setbaud.h>

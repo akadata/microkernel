@@ -5,12 +5,6 @@
 
 #define IDLE_TASK_STACKSIZE ((size_t) 64)
 
-struct message {
-    Node node;
-    Task *source;
-    void *data;
-};
-
 Task *running_task;
 List ready_tasks;
 /* The waiting list is not strictly needed by the multitasking
