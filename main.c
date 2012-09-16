@@ -1,4 +1,6 @@
 /* main.c: Example program for kernel. */
+#include <assert.h>
+#include <stdlib.h>
 #include "kernel.h"
 #include "kernel_log.h"
 #include "kernel_port.h"
@@ -22,26 +24,59 @@ void count(uint16_t n) {
     }
 }
 
-void hello(void)
+Task *t1, *t2;
+#define MESS 3
+void f1(void)
 {
-    task_wait(1);
+    Message m[MESS];
+    for (uint8_t i = 0; i < MESS; i++) {
+        interrupts_disable();
+        task_line("Sending message ");
+        log_hex(i);
+        interrupts_enable();
+        message_put(t2, &m[i]);
+    }
+
+    interrupts_disable();
+    task_line("END");
+    interrupts_enable();
     task_wait(2);
-    task_wait(8+16);
-    task_wait(32);
 }
 
-Task *my;
+void f2(void)
+{
+    Message *n;
+    while(1) {
+        message_wait();
+        while(NULL != (n = message_get())) {
+            interrupts_disable();
+            task_line("Got message");
+            interrupts_enable();
+        }
+    }
+
+    interrupts_disable();
+    task_line("END");
+    interrupts_enable();
+    task_wait(2);
+}
+
+
+void abort(void)
+{
+    log_line("ASSERT FAILURE");
+    exit(1);
+}
 
 int main(void)
 {
     kernel_init();
-    my = task_create("hello", PRIORITY_NORMAL, hello, 64);
-    kernel_start();
-    task_signal(my, 4);
-    task_signal(my, 2);
-    task_signal(my, 8);
-    task_signal(my, 1);
-    task_wait(4);
+    t1 = task_create("Task1", PRIORITY_NORMAL+2, f1, 64);
+    assert(t1);
+    t2 = task_create("Task2", PRIORITY_NORMAL+1, f2, 64);
+    assert(t2);
+    assert(kernel_start());
+    task_wait(2);
     return 0;
 }
 
