@@ -1,8 +1,15 @@
+#include <assert.h>
 #include <inttypes.h>
 #include <avr/io.h>
+#include "kernel.h"
+#include "port.h"
 #include "uart_driver.h"
 
-void uart_init(void)
+Task *uart_tx;
+
+#define UART_TX_STACK 64
+
+static void uart_init(void)
 {
     #define F_CPU 8000000
     #define BAUD 31250
@@ -16,7 +23,37 @@ void uart_init(void)
     #endif
     /* Enable receiver and transmitter. */
     UCSRB = _BV(RXEN) | _BV(TXEN);
-    uart_putstring("\nUART driver initialized\n");
+}
+
+static void uart_tx_driver_program(void)
+{
+    Byte_Message *m;
+
+    uart_init();
+    while(1) {
+        message_wait();
+        while ((m = (Byte_Message *) message_get())) {
+            loop_until_bit_is_set(UCSRA, UDRE);
+            UDR = m->d;
+            message_put(m->m.source, (Message *) m);
+        }
+    }
+}
+
+void uart_open() {
+    uart_tx = task_create("UART_TX", PRIORITY_HIGH,
+      uart_tx_driver_program, UART_TX_STACK);
+    assert(uart_tx);
+}
+
+void uart_put(uint8_t v)
+{
+    Byte_Message m;
+    m.d = v;
+    message_put(uart_tx, (Message *) &m);
+    message_wait();
+    while (message_get()) {
+    }
 }
 
 void uart_putchar(char c)
@@ -25,12 +62,6 @@ void uart_putchar(char c)
         uart_putchar('\r');
     }
     uart_put(c);
-}
-
-void uart_put(uint8_t v)
-{
-    loop_until_bit_is_set(UCSRA, UDRE);
-    UDR = v;
 }
 
 static char num_to_hex(uint8_t n)
