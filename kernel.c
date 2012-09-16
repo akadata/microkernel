@@ -107,11 +107,10 @@ void task_signal(Task *task, Signal signal) {
     log_string(", rec=");
     log_hex(task->sig_rec);
     log_string("} ==> rec=");
-
     task->sig_rec |= signal;
     log_hex(task->sig_rec);
     if (task->sig_mask & signal) {
-        task_line("Unblock destination");
+        log_string(", unblock");
         list_remove_node((Node *) task); 
         list_enqueue(&ready_tasks, (Node *) task);
         if (running_task->node.ln_pri < task->node.ln_pri) {
@@ -122,26 +121,57 @@ void task_signal(Task *task, Signal signal) {
             interrupts_enable();
         }
     } else {
+        log_string(", no unblock.");
         interrupts_enable();
     }
 }
 
-/*
-sig_wait := mask
-if 0 != (sig_wait & sig_rec)
-  ret = sig_rec
-  sig_rec = sig_wait & ~sig_rec
-  return sig_rec
-else
-  block
-  ret = sig_rec
-  clear signal bits that satisfied wait conditions. ??
-  sig_rec = sig_wait & ~sig_rec
-  return ret
-*/
-/* FIXME: Motivate why satisfied signal bits are cleared. */
+/* Why are satisfied signal bits cleared? Because there is no
+need to clear it manually afterwards then. */
 Signal task_wait(Signal mask) {
-    
-    return 0;
+    Signal ret;
+
+    interrupts_disable();
+    task_line("{mask=");
+    log_hex(mask);
+    log_string(", rec=");
+    log_hex(running_task->sig_rec);
+    log_string("} ==> ");
+    if (mask & running_task->sig_rec) {
+        log_string("early return");
+
+        ret = running_task->sig_rec & mask;
+        running_task->sig_rec &= ~mask;
+        running_task->sig_mask = 0;
+
+        interrupts_enable();
+        return ret;
+    } else {
+        log_string("block");
+        running_task->sig_mask = mask;
+        list_remove_node((Node *) running_task);
+        list_enqueue(&waiting_tasks, (Node *) running_task);
+        task_line("--> waiting list");
+        port_reschedule();
+        /* Interrupts may occur here. */
+        interrupts_disable();
+        task_line("unblock ");
+        log_string("{mask=");
+        log_hex(mask);
+        log_string(", rec=");
+        log_hex(running_task->sig_rec);
+        log_string("} ==> ");
+
+        ret = running_task->sig_rec & mask;
+        running_task->sig_rec &= ~mask;
+        running_task->sig_mask = 0;
+
+        log_string("{rec=");
+        log_hex(running_task->sig_rec);
+        log_string("}, return ");
+        log_hex(ret);
+        interrupts_enable();
+        return ret;
+    }
 }
 

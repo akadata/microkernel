@@ -26,14 +26,14 @@ void count(uint16_t n) {
         port_log_puthex(i++);
         port_log_putchar(' ');
         while(t++) {
-            t--; t++; t--; t++; t--; t++;
+            t--; t++; t--; t++; t--; t++; t--; t++; t--; t++; t--; t++;
         }
     }
 }
 
 void hello(void)
 {
-    task_self()->sig_mask = 1;
+    task_wait(1);
     count(7);
 }
 
@@ -44,9 +44,9 @@ int main(void)
     kernel_init();
     my = task_create("hello", PRIORITY_NORMAL, hello, 64);
     kernel_start();
-    swisch();
+    task_signal(my, 2);
     task_signal(my, 1);
-        count(11);
+    count(11);
     return 0;
 }
 

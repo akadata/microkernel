@@ -47,7 +47,8 @@ void task_set_priority(Task *task, Priority priority);
 /* task_signal: Send signal to task. */
 void task_signal(Task *task, Signal signal);
 
-/* task_wait: Wait for signals. */
+/* task_wait: Wait for signals. All signals received since
+last wait() matching mask are returned. */
 Signal task_wait(Signal mask);
 
 /* message_create: Allocate and prepare a message. A pointer
