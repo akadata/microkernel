@@ -94,6 +94,5 @@ void message_reply(Message *message);
 struct message {
     Node node;
     Task *source;
-    void *data;
 };
 

@@ -1,19 +1,10 @@
 #include "kernel.h"
 #include "kernel_port.h"
-/* #include "kernel_log.h" */
 
 #define SIGNAL_MESSAGE ((Signal) 1)
+#define SIGNAL_REPLY ((Signal) 2)
 
-void message_set_data(Message *message, void *data)
-{
-    message->data = data;
-}
-
-void *message_get_data(Message *message)
-{
-    return message->data;
-}
-
+/* Asynchronous message passing. */
 void message_put(Task *destination, Message *message)
 {
     message->node.ln_pri = PRIORITY_NORMAL;
@@ -37,5 +28,17 @@ Message *message_get(void)
     m = (Message *) list_remove_head(&running_task->messages);
     interrupts_enable();
     return m;
+}
+
+/* Synchronous message passing. */
+void message_putget(Task *destination, Message *message)
+{
+    message_put(destination, message);
+    task_wait(SIGNAL_REPLY);  
+}
+
+void message_reply(Message *message)
+{
+    task_signal(message->source, SIGNAL_REPLY);
 }
 
