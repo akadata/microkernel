@@ -3,6 +3,12 @@ Libraries". */
 
 #include <stdint.h>
 
+#define PRIORITY_IDLE (INT8_MIN)
+#define PRIORITY_LOW (INT8_MIN / 2)
+#define PRIORITY_NORMAL (0)
+#define PRIORITY_HIGH (INT8_MAX / 2)
+#define PRIORITY_MAX (INT8_MAX)
+
 typedef int8_t Priority;
 typedef struct node Node;
 typedef struct list List;

@@ -1,8 +1,6 @@
 #include "kernel.h"
+#include "kernel_ipc.h"
 #include "kernel_port.h"
-
-#define SIGNAL_MESSAGE ((Signal) 1)
-#define SIGNAL_REPLY ((Signal) 2)
 
 /* Asynchronous message passing. */
 void message_put(Task *destination, Message *message)

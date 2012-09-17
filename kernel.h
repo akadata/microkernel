@@ -7,14 +7,8 @@ typedef struct task Task;
 typedef struct message Message;
 typedef void (Function)(void);
 
-#define PRIORITY_IDLE (INT8_MIN)
-#define PRIORITY_LOW (INT8_MIN / 2)
-#define PRIORITY_NORMAL (0)
-#define PRIORITY_HIGH (INT8_MAX / 2)
-
 /* kernel_init: Allocate and initialize kernel data
-structures. The function may only be called once. Zero is
-returned if the call succeeded. */
+structures. Zero is returned if the call succeeded. */
 uint8_t kernel_init(void);
 
 /* kernel_start: Start the scheduler. This function returns
@@ -38,6 +32,9 @@ void task_free(Task *task);
 returned. */
 Task *task_self(void);
 
+/* task_name: Get name of task. */
+char *task_name(Task *task);
+
 /* task_get_priority: Get task priority. */
 Priority task_get_priority(Task *task);
 
@@ -51,21 +48,6 @@ void task_signal(Task *task, Signal signal);
 last wait() matching mask are returned. */
 Signal task_wait(Signal mask);
 
-/* message_create: Allocate and prepare a message. A pointer
-to the newly created message is returned, or NULL if an error
-occured. The function temporary disables multitasking. */
-Message *message_create(void);
-
-/* message_free: Free the resources used by message. */
-void message_free(Message *message);
-
-/* message_set_data: Associate data with message. The data is
-refered to, not copied. */
-void message_set_data(Message *message, void *data);
-
-/* message_get_data: Get the data associated with a
-message. Data is not copied. */
-void *message_get_data(Message *message);
 
 /* message_put: Add a message to task's message queue. The
 content of message is owned by the destination task at return
@@ -90,9 +72,4 @@ Message *message_get(void);
 
 /* message_reply: Reply on a message. */
 void message_reply(Message *message);
-
-struct message {
-    Node node;
-    Task *source;
-};
 

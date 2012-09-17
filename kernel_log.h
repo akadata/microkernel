@@ -1,3 +1,7 @@
+/* Define DEBUG to turn on debug output. When DEBUG is not
+defined, the extra code will be taken care of (removed) by
+the compiler. */
+
 void port_log_init(void);
 void port_log_putchar(char c);
 void port_log_puthex(uint8_t v);

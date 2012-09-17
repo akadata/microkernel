@@ -86,3 +86,7 @@ Task *task_self(void) {
     return running_task;
 }
 
+char *task_name(Task *task) {
+    return task->name;
+}
+

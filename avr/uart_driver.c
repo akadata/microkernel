@@ -2,6 +2,7 @@
 #include <inttypes.h>
 #include <avr/io.h>
 #include "kernel.h"
+#include "kernel_ipc.h"
 #include "port.h"
 #include "uart_driver.h"
 

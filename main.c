@@ -2,14 +2,13 @@
 #include <assert.h>
 #include <stdlib.h>
 #include "kernel.h"
-#include "kernel_log.h"
-#include "kernel_port.h"
+#include "kernel_ipc.h"
 #include "uart_driver.h"
 
 static void f(void)
 {
     uart_putstring("\nThis is ");
-    uart_putstring(task_self()->name);
+    uart_putstring(task_name(task_self()));
     message_wait();
 }
 

@@ -1,3 +1,5 @@
+/* This file contains declarations needed for porting. */
+
 typedef struct context Context;
 
 struct task {
@@ -14,7 +16,7 @@ extern List ready_tasks;
 extern List waiting_tasks;
 
 /* context_create: Allocate stack and initialize task
-context. The code entry point is entry.  A pointer to the
+context. The code entry point is entry. A pointer to the
 created context is returned, or NULL if an error occured. */
 Context *context_create(Function *entry, size_t stacksize);
 

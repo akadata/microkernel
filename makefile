@@ -32,9 +32,3 @@ gdb: $(TARGET)
 clean:
 	rm -f $(OBJECTS) $(TARGET) $(TARGET).map
 
-# Every non-.PHONY rule must update a file with the exact
-# name of its target.  Make sure every command script touches
-# the file "$@"-- not "../$@", or "$(notdir $@)", but exactly
-# $@. That way you and GNU make always agree.
-# http://mad-scientist.net/make/rules.html
-
