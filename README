@@ -1,0 +1,46 @@
+     A portable pre‐emptive microkernel with message passing
+
+                          Martin Åberg
+
+                       martin@fripost.org
+
+                              2012
+
+
+This  kernel  is  designed with the aims of being easy to use and
+understand, containing suitable inter process  communication  fa‐
+cilities,  having  a  straight  forward  implementation and being
+highly portable.
+
+Each execution unit, task, has its own stack and context.  Multi‐
+tasking  is  pre‐emptive  and priority based, with equal priority
+tasks being given access to the processor in a round robin  fash‐
+ion.
+
+Inter‐process communication facilities include signaling and mes‐
+sage passing. The kernel signal primitive allows a task or inter‐
+rupt  service  routine to signal any other task asynchronously. A
+task can issue a blocking wait kernel call to wait for a specific
+signal  to  arrive.  There  is support in the kernel for handling
+multiple signal channels per task, and this facility is used  for
+the  message passing sub system. The signals don’t carry any pay‐
+load data themselves though.
+
+Both asynchronous and synchronous message passing  is  supported.
+Each task has its own message queue in which messages are put and
+delivered in FIFO order.
+
+Time spent in the kernel is easily bounded when the maximum  num‐
+ber  of tasks is known. Actually, the there is only one mechanism
+in the kernel whose time complexity does depend  on  a  variable.
+That  is the enquing in priority order of a task into the list or
+ready tasks. No dynamic memory is allocated when the multitasking
+kernel  is  up and running. These properties make the microkernel
+suitable for real time operation.
+
+One design goal was to make the kernel interface and  implementa‐
+tion  portable. This goal is achieved by dividing the kernel code
+into a platform independent part and a platform  dependent  part.
+When porting the kernel to a new platform, only the interface for
+the platform dependent part has to be  implemented.  Current  the
+only implementation targets Atmel AVR.
